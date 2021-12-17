@@ -1,0 +1,20 @@
+{
+	"script_name" : "",
+	"Source_Cluster_IP" : "",
+	"Target_Cluster_IP" : "",
+	"PD_Name" : "",
+	"FS_Name" : "",
+	"Source_Cluster_Name" : "",
+	"Target_Cluster_Name" : "",
+	"fs_uuid" : "",
+	"fs_dns" : "",
+	"fs_ntp" : "",
+	"fs_int_net_uuid" : "",
+	"fs_int_net_mask" : "",
+	"fs_int_net_gw" : "",
+	"fs_int_net_pool" : "",   
+	"fs_ext_net_uuid" : "",
+	"fs_ext_net_mask" : "",
+	"fs_ext_net_gw" : "",
+	"fs_ext_net_pool" : "" 
+}
