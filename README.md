@@ -35,6 +35,8 @@ Need cookiecutter <br />
 
 ```cookiecutter --config-file ./files-dr-automation/trev3-to-trev4.yaml files-dr-automation --no-input```
 
+As soon as you execute the above command it will create a directory with the script_name and a python script
+
 ```
 #ls -l
 total 0
@@ -44,4 +46,32 @@ drwxr-xr-x  3 aritro.basu  wheel  96 Dec 17 17:55 trevor-3-to-trevor-4
 #ls -l
 total 16
 -rw-r--r--  1 aritro.basu  wheel  6083 Dec 17 17:55 trevor-3-to-trevor-4.py
+```
+You can execute python script and enter the credentions
+
+```
+#python3 trevor-3-to-trevor-4.py
+Enter Prism Admin User for Trevor-3 Cluster : admin
+Enter Password:*******
+Login to Trevor-3 is successful
+Enter Prism Admin User for Trevor-4 Cluster : admin
+Enter Password:*******
+Login to Trevor-4 is successful
+{'metadata': {'grandTotalEntities': 0, 'totalEntities': 0, 'count': 0}, 'entities': []}
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Waiting for PD to be activated on the Remote Site
+Remote PD is activated now
+{'taskUuid': 'c3af8fbb-df02-4a11-add1-c06503180038'}
+Waiting for FS to be activated on the Remote Site
+Waiting for FS to be activated on the Remote Site
+....
+...
 ```
