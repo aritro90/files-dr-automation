@@ -35,12 +35,12 @@ Need cookiecutter <br />
 <br />
 `cookiecutter --config-file ./files-dr-automation/trev3-to-trev4.yaml files-dr-automation --no-input`
 
-`# ls -l
+`#ls -l
 total 0
 drwxr-xr-x  3 aritro.basu  wheel  96 Dec 17 17:55 trevor-3-to-trevor-4`
 
-`# cd trevor-3-to-trevor-4
-# ls -l
+`#cd trevor-3-to-trevor-4
+#ls -l
 total 16
 -rw-r--r--  1 aritro.basu  wheel  6083 Dec 17 17:55 trevor-3-to-trevor-4.py
 `
