@@ -27,3 +27,20 @@ You can change the values in the yamls as per you need <br />
 ```fs_ext_net_gw:``` Gateway IP for external/client facing network for file server on destination side . This should be empty in case of you are using managed network on AHV <br />
 ```fs_ext_net_pool:``` IP Pool range for external/client facing network for file server on destination side . This should be empty in case of you are using managed network on AHV. For example, the value of IP Pool range can be defined as "10.10.20.20 10.10.20.22" for a 3 nodes Fileserver <br />
 
+##Requirements
+Need Python3
+Need cookiecutter
+
+##Procedure
+
+`cookiecutter --config-file ./files-dr-automation/trev3-to-trev4.yaml files-dr-automation --no-input`
+
+`# ls -l
+total 0
+drwxr-xr-x  3 aritro.basu  wheel  96 Dec 17 17:55 trevor-3-to-trevor-4`
+
+`# cd trevor-3-to-trevor-4
+# ls -l
+total 16
+-rw-r--r--  1 aritro.basu  wheel  6083 Dec 17 17:55 trevor-3-to-trevor-4.py
+`
