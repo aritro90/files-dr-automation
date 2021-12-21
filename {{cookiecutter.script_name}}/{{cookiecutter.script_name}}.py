@@ -145,6 +145,7 @@ def Source_Site():
         print (login_check[0])
         sys.exit(f"Could not connect to the Cluster {Source_Cluster_Name} .. Exiting the script")
     source_pd_check (*Source)
+    fileserver_check (*Source)
     return Source
                        
 def Target_Site():                  
