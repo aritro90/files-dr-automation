@@ -106,6 +106,22 @@ def target_network_uuid_check (User_Name,Password):
             sys.exit(f" Internal network uuid {fs_int_net_uuid} is not found")
     if y != 1 :
         sys.exit(f" External network uuid {fs_ext_net_uuid} is not found")
+# Checking FileServer Name and its UUID
+def fileserver_check (User_Name,Password):
+    r = requests.get(f'https://{Source_Cluster_IP}:9440/PrismGateway/services/rest/v1/vfilers', auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    z = 0
+    for i in r.json()['entities']:
+        if i['name'] == FS_Name :
+            z = 1
+            print(f"FileServer {FS_Name} Exists")
+            if i['uuid'] == fs_uuid :
+                print(f"FileServer uuid {fs_uuid} matches with the FileServer {FS_Name}")
+            else :
+                sys.exit(f"FileServer uuid {fs_uuid} doesn not match with the FileServer {FS_Name}")
+            if i['fileServerState'] == "FS_PD_ACTIVATED":
+                print(f"FileServer {FS_Name} is present on {Source_Cluster_Name} , though not Activated but can be still migrated ")
+    if z != 1 :
+        sys.exit(f"FileServer {FS_Name} doesn't Exists, Exiting the Script")
 
 # Defining Post function for Migration Activity
 def post_request_migrate(User_Name,Password):
