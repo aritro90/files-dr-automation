@@ -30,17 +30,11 @@ fs_ext_net_mask = "{{cookiecutter.fs_ext_net_mask}}"
 fs_ext_net_gw = "{{cookiecutter.fs_ext_net_gw}}"
 fs_ext_net_pool = "{{cookiecutter.fs_ext_net_pool}}"   #Do not use this variable in the activate payload if using managed network. Ideal way to define the range is (eg: 3 node fs cluster) fs_ext_net_pool = "10.10.10.10 10.10.10.12" 
 
-# Defining Post function for Migration Activity
-def post_request_migrate(User_Name,Password):
-    payload = {'value' : f'{Target_Cluster_Name}'}
-    r = requests.post(f'https://{Source_Cluster_IP}:9440/PrismGateway/services/rest/v1/protection_domains/{PD_Name}/migrate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
-    return r.json()
-
-# Defining Post function for Activation Activity
-def post_request_activate(User_Name, Password):
-    payload = {'name': f'{FS_Name}', 'internalNetwork': {'subnetMask': f'{fs_int_net_mask}', 'defaultGateway': f'{fs_int_net_gw}', 'uuid': f'{fs_int_net_uuid}', 'pool': []}, 'externalNetworks': [{'subnetMask': f'{fs_ext_net_mask}', 'defaultGateway': f'{fs_ext_net_gw}', 'uuid': f'{fs_ext_net_uuid}', 'pool': []}], 'dnsServerIpAddresses': [f'{fs_dns}'], 'ntpServers': [f'{fs_ntp}'], 'uuid': f'{fs_uuid}'}
-    r = requests.post(f'https://{Target_Cluster_IP}:9440/PrismGateway/services/rest/v1/vfilers/{fs_uuid}/activate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
-    return r.json()
+# The below function is used to prompt user to enter username and password. 
+def Prism_auth(Site):
+    User_Name = input(f'Enter Prism Admin User for {Site} Cluster : ')
+    Password = getpass.getpass(prompt="Enter Password: ")
+    return User_Name, Password
 
 # Defining Get function to query the fileserver, this is also be used for auth verification purposes. This will be called multiple times for different cluster, hence passing the cluster IP as an argument as well along with Username and Password
 def get_request(Cluster_IP,User_Name,Password):
@@ -55,11 +49,75 @@ def get_request(Cluster_IP,User_Name,Password):
     except requests.exceptions.RequestException as err:
         return err, r.status_code
 
-# The below function is used to prompt user to enter username and password. 
-def Prism_auth(Site):
-    User_Name = input(f'Enter Prism Admin User for {Site} Cluster : ')
-    Password = getpass.getpass(prompt="Enter Password: ")
-    return User_Name, Password
+# Validating the Source Protection Domain paramters and state
+def source_pd_check (User_Name,Password):
+    r = requests.get(f'https://{Source_Cluster_IP}:9440/PrismGateway/services/rest/v1/protection_domains/', auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    z = 0
+    y = 0
+    for i in r.json():
+        if i['name'] == f'{PD_Name}' :
+            print(f"Protection Domain {PD_Name} Exists")
+            z = 1
+            if i['active'] == True :
+                print(f"Protection Domain {PD_Name} is Active")
+            else:
+                sys.exit(f"Protection Domain {PD_Name} is not active.. Exiting the script")
+            for x in i['remoteSiteNames']:
+                if x == Target_Cluster_Name :
+                    print(f"Remote Site {Target_Cluster_Name} is configured")
+                    y = 1
+            if y != 1 :
+                sys.exit(f"Remote Site {Target_Cluster_Name} is not configured on PD Schedule.. Exiting the script")
+    if z != 1 :
+        sys.exit(f"Protection Domain {PD_Name} does not Exists.. Exiting the script")
+
+# Validating the Target Protection Domain paramters and state           
+def target_pd_check (User_Name,Password):
+    r = requests.get(f'https://{Target_Cluster_IP}:9440/PrismGateway/services/rest/v1/protection_domains/', auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    z = 0
+    y = 0  
+    for i in r.json():
+        if i['name'] == f'{PD_Name}' :
+            print(f"Protection Domain {PD_Name} Exists")
+            z = 1
+            if i['active'] == False :
+                print(f"Target Protection Domain {PD_Name} is in desired state (NOT Active)")
+            else:
+                sys.exit(f"Target Protection Domain {PD_Name} is in active state seems to be a split brain condition.. Exiting the script")
+    if z != 1 :
+        sys.exit(f"Protection Domain {PD_Name} does not Exists.. Exiting the script")
+        
+# Validating the Target network settings for FileServer       
+def target_network_uuid_check (User_Name,Password):
+    r = requests.get(f'https://{Target_Cluster_IP}:9440/PrismGateway/services/rest/v2.0/networks', auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    z = 0
+    y = 0
+    for i in r.json()['entities']:
+        if i['uuid'] == f'{fs_int_net_uuid}' :
+            print(f"The uuid {fs_int_net_uuid} is for Internal Network " + i['name'])
+            z = 1
+        if i['uuid'] == f'{fs_ext_net_uuid}' :
+            print(f"The uuid {fs_ext_net_uuid} is for External Network " + i['name'])
+            y = 1
+    if z != 1 :
+        if y != 1 :
+            sys.exit("Both external and internal networks uuids are not found")
+        else : 
+            sys.exit(f" Internal network uuid {fs_int_net_uuid} is not found")
+    if y != 1 :
+        sys.exit(f" External network uuid {fs_ext_net_uuid} is not found")
+
+# Defining Post function for Migration Activity
+def post_request_migrate(User_Name,Password):
+    payload = {'value' : f'{Target_Cluster_Name}'}
+    r = requests.post(f'https://{Source_Cluster_IP}:9440/PrismGateway/services/rest/v1/protection_domains/{PD_Name}/migrate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    return r.json()
+
+# Defining Post function for Activation Activity
+def post_request_activate(User_Name, Password):
+    payload = {'name': f'{FS_Name}', 'internalNetwork': {'subnetMask': f'{fs_int_net_mask}', 'defaultGateway': f'{fs_int_net_gw}', 'uuid': f'{fs_int_net_uuid}', 'pool': []}, 'externalNetworks': [{'subnetMask': f'{fs_ext_net_mask}', 'defaultGateway': f'{fs_ext_net_gw}', 'uuid': f'{fs_ext_net_uuid}', 'pool': []}], 'dnsServerIpAddresses': [f'{fs_dns}'], 'ntpServers': [f'{fs_ntp}'], 'uuid': f'{fs_uuid}'}
+    r = requests.post(f'https://{Target_Cluster_IP}:9440/PrismGateway/services/rest/v1/vfilers/{fs_uuid}/activate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    return r.json()
 
 # The below 2 functions Source_Site() and Target_Site() will be used as a bridge get the username and password from Prism_auth() and valiate them get_request() and display the messaging accordingly (for success or failure of auth)
 def Source_Site():
@@ -70,6 +128,7 @@ def Source_Site():
     else :
         print (login_check[0])
         sys.exit(f"Could not connect to the Cluster {Source_Cluster_Name} .. Exiting the script")
+    source_pd_check (*Source)
     return Source
                        
 def Target_Site():                  
@@ -80,7 +139,9 @@ def Target_Site():
     else :
         print (login_check[0])
         sys.exit(f"Could not connect to the Cluster {Target_Cluster_Name} .. Exiting the script")
-    return Target
+    target_pd_check(*Target)
+    target_network_uuid_check (*Target)
+    return Target 
 
 # Calling the above functions and Storing the credentials in the variable to use it for future function calls
 cred_source= Source_Site()
@@ -96,7 +157,7 @@ while (fs_state != "FS_PD_ACTIVATED" and fs_pdStatus != "true"):
     print ("Waiting for PD to be activated on the Remote Site")
     time.sleep(2)
     for i in vfiler_reponse[0]['entities']:
-        if i['name'] == "test1" :
+        if i['name'] == FS_Name :
             fs_pdStatus = i['pdStatus']
             fs_state = i['fileServerState']
             
@@ -114,7 +175,7 @@ while (fs_state != "FS_ACTIVATED_REACHABLE" and fs_pdstate != "true"):
     print ("Waiting for FS to be activated on the Remote Site")
     time.sleep(10)
     for i in vfiler_reponse[0]['entities']:
-        if i['name'] == "test1" :
+        if i['name'] == FS_Name :
             fs_pdstate = i['protectionDomainState']
             fs_state = i['fileServerState']
 print ("FS is activated now on remote site")
