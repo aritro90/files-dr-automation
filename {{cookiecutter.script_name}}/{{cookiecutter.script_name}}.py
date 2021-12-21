@@ -117,7 +117,7 @@ def fileserver_check (User_Name,Password):
             if i['uuid'] == fs_uuid :
                 print(f"FileServer uuid {fs_uuid} matches with the FileServer {FS_Name}")
             else :
-                sys.exit(f"FileServer uuid {fs_uuid} doesn not match with the FileServer {FS_Name}")
+                sys.exit(f"FileServer uuid {fs_uuid} does not match with the FileServer {FS_Name}")
             if i['fileServerState'] == "FS_PD_ACTIVATED":
                 print(f"FileServer {FS_Name} is present on {Source_Cluster_Name} , though not Activated but can be still migrated ")
     if z != 1 :
