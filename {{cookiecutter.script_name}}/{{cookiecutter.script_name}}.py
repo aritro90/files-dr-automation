@@ -123,6 +123,10 @@ def fileserver_check (User_Name,Password):
     if z != 1 :
         sys.exit(f"FileServer {FS_Name} doesn't Exists, Exiting the Script")
 
+def task_status(Cluster_IP,task_id,User_Name,Password):
+    r = requests.get(f'https://{Cluster_IP}:9440/PrismGateway/services/rest/v2.0/tasks/{task_id}', auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    return r.json()
+
 # Defining Post function for Migration Activity
 def post_request_migrate(User_Name,Password):
     payload = {'value' : f'{Target_Cluster_Name}'}
@@ -180,7 +184,7 @@ while (fs_state != "FS_PD_ACTIVATED" and fs_pdStatus != "true"):
             
 print ("Remote PD is activated now")
 
-time.sleep(60)
+time.sleep(30)
 
 # Invoking Filesever Activtaion Activity and Storing the response
 activate_response = post_request_activate(*cred_target)
@@ -189,8 +193,11 @@ print (activate_response)
 # Checking the FS is activated on the remote side 
 while (fs_state != "FS_ACTIVATED_REACHABLE" and fs_pdstate != "true"):
     vfiler_reponse = get_request(Target_Cluster_IP,*cred_target)
-    print ("Waiting for FS to be activated on the Remote Site")
-    time.sleep(10)
+    x = task_status(Target_Cluster_IP,activate_response['taskUuid'],*cred_target)
+    while (x['percentage_complete']) != 100:
+        x = task_status(Target_Cluster_IP,activate_response['taskUuid'],*cred_target)
+        print("Waiting for FS to be activated on the Remote Site  ||  " + "Current Ongoing Task = "+ x['message'] + "  ||  " + "Percentage Complete = "+ str(x['percentage_complete']))
+        time.sleep(10)
     for i in vfiler_reponse[0]['entities']:
         if i['name'] == FS_Name :
             fs_pdstate = i['protectionDomainState']
