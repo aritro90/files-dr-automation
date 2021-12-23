@@ -121,7 +121,7 @@ def fileserver_check (User_Name,Password):
             else :
                 sys.exit(f"FileServer uuid {fs_uuid} does not match with the FileServer {FS_Name}")
             if i['fileServerState'] == "FS_PD_ACTIVATED":
-                print(f"FileServer {FS_Name} is present on {Source_Cluster_Name} , though not Activated but can be still migrated ")
+                print(f"FileServer {FS_Name} is present on {Source_Cluster_Name} , but not in Activated state")
     if z != 1 :
         sys.exit(f"FileServer {FS_Name} doesn't Exists, Exiting the Script")
 
@@ -133,26 +133,37 @@ def task_status(Cluster_IP,task_id,User_Name,Password):
 def post_request_migrate(User_Name,Password):
     payload = {'value' : f'{Target_Cluster_Name}'}
     r = requests.post(f'https://{Source_Cluster_IP}:9440/PrismGateway/services/rest/v2.0/protection_domains/{PD_Name}/migrate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    print (f"Migrating Protection Domain(PD) {PD_Name} to the Remote Cluster {Target_Cluster_Name} ")
     return r.json()
 
 # Defining Post function for Activation Activity
 def post_request_activate_fs(User_Name, Password):
     payload = {'name': f'{FS_Name}', 'internalNetwork': {'subnetMask': f'{fs_int_net_mask}', 'defaultGateway': f'{fs_int_net_gw}', 'uuid': f'{fs_int_net_uuid}', 'pool': []}, 'externalNetworks': [{'subnetMask': f'{fs_ext_net_mask}', 'defaultGateway': f'{fs_ext_net_gw}', 'uuid': f'{fs_ext_net_uuid}', 'pool': []}], 'dnsServerIpAddresses': [f'{fs_dns}'], 'ntpServers': [f'{fs_ntp}'], 'uuid': f'{fs_uuid}'}
     r = requests.post(f'https://{Target_Cluster_IP}:9440/PrismGateway/services/rest/v1/vfilers/{fs_uuid}/activate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
+    print(f"Activating FileServer {FS_Name} on {Target_Cluster_Name}")
     return r.json()
 
 # Defining Post function for PD Activation Activity for unplanned failover
 def post_request_activate_pd(User_Name, Password):
     payload = {}
     r = requests.post(f'https://{Target_Cluster_IP}:9440/PrismGateway/services/rest/v2.0/protection_domains/{PD_Name}/activate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
-    return r.json()
+    if "value" in r.json():
+        if (r.json()['value'] == True):
+            print (f"Performing an unplanned failover, Activating Protection Domain {PD_Name} on Cluster {Target_Cluster_Name}")
+    else:
+        print(r.json()['message'])
+        sys.exit("Exiting the Script..")
+
 
 # Defining Post function for PD Activation Activity for unplanned failover
 def post_request_deactivate_pd(User_Name, Password):
     payload = {}
     r = requests.post(f'https://{Source_Cluster_IP}:9440/PrismGateway/services/rest/v2.0/protection_domains/{PD_Name}/deactivate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
-    return r.json()
-
+    if "value" in r.json():
+        if (r.json()['value'] == True):
+            print (f"Deactivating PD {PD_Name}, which will clean up VM/volume-group entities of PD at {Source_Cluster_Name} Cluster")
+    else:
+        print(r.json()['message'])
 
 # The below 2 functions Source_Site() and Target_Site() will be used as a bridge get the username and password from Prism_auth() and valiate them get_request() and display the messaging accordingly (for success or failure of auth)
 def Source_Site():
@@ -184,16 +195,27 @@ if Activity_type == "Planned" :
     cred_source= Source_Site()
     cred_target= Target_Site()
 
+# Invoking for Unplanned Failover
 if Activity_type == "Unplanned" :
     cred_target= Target_Site()
-    pd_activate_unplanned= post_request_activate_pd(*cred_target)
-    print(pd_activate_unplanned)
+    post_request_activate_pd(*cred_target)
+    
+    # Checking the PD is activated on the remote side 
+    while (fs_state != "FS_PD_ACTIVATED" and fs_pdStatus != "true"):
+        vfiler_reponse = get_request(Target_Cluster_IP,*cred_target)
+        print (f"Waiting for PD {PD_Name} to be activated on cluster {Target_Cluster_Name} ")
+        time.sleep(2)
+        for i in vfiler_reponse[0]['entities']:
+            if i['name'] == FS_Name :
+                fs_pdStatus = i['pdStatus']
+                fs_state = i['fileServerState']
+    print (f"Target PD {PD_Name} is activated now")
     time.sleep(30)
 
 if Activity_type == "Deactivate" :
     cred_source= Source_Site()
-    pd_deactivate= post_request_deactivate_pd(*cred_source)
-    print (pd_deactivate)
+    post_request_deactivate_pd(*cred_source)
+    
 
 # Invoking Migration Activity and storing the response
 if Activity_type == "Planned" :
@@ -203,13 +225,13 @@ if Activity_type == "Planned" :
     # Checking the PD is activated on the remote side 
     while (fs_state != "FS_PD_ACTIVATED" and fs_pdStatus != "true"):
         vfiler_reponse = get_request(Target_Cluster_IP,*cred_target)
-        print ("Waiting for PD to be activated on the Remote Site")
+        print (f"Waiting for PD {PD_Name} to be activated on cluster {Target_Cluster_Name} ")
         time.sleep(2)
         for i in vfiler_reponse[0]['entities']:
             if i['name'] == FS_Name :
                 fs_pdStatus = i['pdStatus']
                 fs_state = i['fileServerState']
-    print ("Remote PD is activated now")
+    print (f"PD {PD_Name} is activated now on cluster {Target_Cluster_Name} ")
     time.sleep(30)
             
 
@@ -224,13 +246,13 @@ if Activity_type == "Planned" or  Activity_type == "Unplanned":
         x = task_status(Target_Cluster_IP,activate_response['taskUuid'],*cred_target)
         while (x['percentage_complete']) != 100:
             x = task_status(Target_Cluster_IP,activate_response['taskUuid'],*cred_target)
-            print("Waiting for FS to be activated on the Remote Site  ||  " + "Current Ongoing Task = "+ x['message'] + "  ||  " + "Percentage Complete = "+ str(x['percentage_complete']))
+            print(f"Waiting for FileServer {FS_Name} to be activated on Cluster {Target_Cluster_Name}  ||  " + "Current Ongoing Task = "+ x['message'] + "  ||  " + "Percentage Complete = "+ str(x['percentage_complete']))
             time.sleep(10)
         for i in vfiler_reponse[0]['entities']:
             if i['name'] == FS_Name :
                 fs_pdstate = i['protectionDomainState']
                 fs_state = i['fileServerState']
-    print ("FS is activated now on remote site")
+    print (f"FileServer {FS_Name} is activated now on cluster {Target_Cluster_Name} ")
 
 
 
