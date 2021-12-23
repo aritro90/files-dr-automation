@@ -1,4 +1,5 @@
 default_context:
+    Activity_type: "Planned"
     script_name: "trevor-3-to-trevor-4"
     Source_Cluster_IP: "10.48.70.178"
     Target_Cluster_IP: "10.48.70.180"
