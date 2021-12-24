@@ -24,16 +24,16 @@ You can change the values in the yamls as per you need <br />
 ```Source_Cluster_Name:``` Name of the Source PE cluster <br />
 ```Target_Cluster_Name:``` Name of the Destination PE cluster where the FileServer needs to be moved <br />
 ```fs_uuid:``` file server uuid, could be collected using "afs info.fileservers" command on one of the CVM <br />
-```fs_dns:``` DNS IP to be used by Fileserver when failed over to Destination side. For example, Multiple IP should be defined as ""10.10.10.10" , "10.10.10.11"" <br />
-```fs_ntp:``` NTP IP to be used by Fileserver when failed over to Destination side For example, Multiple IP should be defined as ""10.10.10.10" , "10.10.10.11"" <br />
-```fs_int_net_uuid:``` UUID for internal/CVM storage facing network for file server on destination side. uuid can be collected using "acli net.list" command on one of the CVM <br />
+```fs_dns:``` DNS IP to be used by Fileserver when failed over to Destination side.  <br />
+```fs_ntp:``` NTP IP to be used by Fileserver when failed over to Destination side  <br />
+```fs_int_net_uuid:``` UUID for internal/CVM storage facing network for file server on destination side. uuid can be collected using "acli net.list"(for AHV) command on one of the CVM <br />
 ```fs_int_net_mask:``` Network Mask for internal/CVM storage facing network for file server on destination side . This should be empty in case of you are using managed network on AHV <br />
 ```fs_int_net_gw:``` Gateway IP for internal/CVM storage facing network for file server on destination side . This should be empty in case of you are using managed network on AHV <br />
-```fs_int_net_pool:``` IP Pool range for internal/CVM storage facing network for file server on destination side . This should be empty in case of you are using managed network on AHV. For example, the value of IP Pool range can be defined as "10.10.10.20 10.10.10.23" for a 3 nodes Fileserver <br />
-```fs_ext_net_uuid:``` UUID ID for external/client facing network for file server on destination side. uuid can be collected using "acli net.list" command on one of the CVM <br />
+```fs_int_net_pool:``` IP Pool range for internal/CVM storage facing network for file server on destination side . This should be empty in case of you are using managed network on AHV.  <br />
+```fs_ext_net_uuid:``` UUID ID for external/client facing network for file server on destination side. uuid can be collected using "acli net.list"(for AHV) command on one of the CVM <br />
 ```fs_ext_net_mask:``` Network Mask for external/client facing network for file server on destination side . This should be empty in case of you are using managed network on AHV <br />
 ```fs_ext_net_gw:``` Gateway IP for external/client facing network for file server on destination side . This should be empty in case of you are using managed network on AHV <br />
-```fs_ext_net_pool:``` IP Pool range for external/client facing network for file server on destination side . This should be empty in case of you are using managed network on AHV. For example, the value of IP Pool range can be defined as "10.10.20.20 10.10.20.22" for a 3 nodes Fileserver <br />
+```fs_ext_net_pool:``` IP Pool range for external/client facing network for file server on destination side . This should be empty in case of you are using managed network on AHV. <br />
 
 ## Requirements 
 Need Python3 <br />
@@ -63,48 +63,53 @@ You can execute python script and enter the credentions
 Enter Prism Admin User for Trevor-3 Cluster : admin
 Enter Password:
 Login to Trevor-3 is successful
-Protection Domain NTNX-test1 Exists
-Protection Domain NTNX-test1 is Active
+Protection Domain NTNX-myfiler Exists
+Protection Domain NTNX-myfiler is Active
 Remote Site Trevor-4 is configured
-FileServer test1 Exists
-FileServer uuid 990973f8-d12b-409a-9a14-fbbfc4b584e7 matches with the FileServer test1
+FileServer myfiler Exists
+FileServer uuid 86384a32-da87-490a-af68-6b71287edbf9 matches with the FileServer myfiler
 Enter Prism Admin User for Trevor-4 Cluster : admin
 Enter Password:
 Login to Trevor-4 is successful
-Protection Domain NTNX-test1 Exists
-Target Protection Domain NTNX-test1 is in desired state (NOT Active)
-The uuid 7bf581fa-5fda-4373-971a-77a7c5f2eee3 is for Internal Network vlan-0
-The uuid 7bf581fa-5fda-4373-971a-77a7c5f2eee3 is for External Network vlan-0
-Migrating Protection Domain(PD) NTNX-test1 to the Remote Cluster Trevor-4
+Protection Domain NTNX-myfiler Exists
+Target Protection Domain NTNX-myfiler is in desired state (NOT Active)
+The uuid 441cd480-b463-484d-b4dd-6c7cadc64635 is for Internal Network Primary
+The uuid 441cd480-b463-484d-b4dd-6c7cadc64635 is for External Network Primary
+Migrating Protection Domain(PD) NTNX-myfiler to the Remote Cluster Trevor-4
 {'metadata': {'grand_total_entities': 0, 'total_entities': 0, 'count': 0}, 'entities': []}
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-Waiting for PD NTNX-test1 to be activated on cluster Trevor-4
-PD NTNX-test1 is activated now on cluster Trevor-4
-Activating FileServer test1 on Trevor-4
-{'taskUuid': '65b89a24-e51f-47b7-bcb4-9909411e45af'}
-Waiting for FileServer test1 to be activated on Cluster Trevor-4  ||  Current Ongoing Task = File Server activation suspend schedule : Completed  ||  Percentage Complete = 2
-Waiting for FileServer test1 to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Attach ISO from NVMs : Completed  ||  Percentage Complete = 34
-Waiting for FileServer test1 to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Powering ON NVMs : Completed  ||  Percentage Complete = 42
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+Waiting for PD NTNX-myfiler to be activated on cluster Trevor-4
+PD NTNX-myfiler is activated now on cluster Trevor-4
+Activating FileServer myfiler on Trevor-4
+{'taskUuid': 'd8ce86d1-2c92-4809-9e7c-f450186a6722'}
+Waiting for FileServer myfiler to be activated on Cluster Trevor-4  ||  Current Ongoing Task = File Server activation suspend schedule : Completed  ||  Percentage Complete = 2
+Waiting for FileServer myfiler to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Attach ISO from NVMs : Completed  ||  Percentage Complete = 34
+Waiting for FileServer myfiler to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Powering ON NVMs : Completed  ||  Percentage Complete = 42
 .....
 ....
 ...
-Waiting for FileServer test1 to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Bring up NVMs : Completed  ||  Percentage Complete = 47
+Waiting for FileServer myfiler to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Bring up NVMs : Completed  ||  Percentage Complete = 47
 .....
 ....
 ...
-Waiting for FileServer test1 to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Sending Restore RPC to NVM : Completed  ||  Percentage Complete = 70
+Waiting for FileServer myfiler to be activated on Cluster Trevor-4  ||  Current Ongoing Task = Sending Restore RPC to NVM : Completed  ||  Percentage Complete = 70
 ....
 ...
-Waiting for FileServer test1 to be activated on Cluster Trevor-4  ||  Current Ongoing Task = File Server activation suspend schedule : Completed  ||  Percentage Complete = 2
-Waiting for FileServer test1 to be activated on Cluster Trevor-4  ||  Current Ongoing Task = File Server Activate  ||  Percentage Complete = 100
-FileServer test1 is activated now on cluster Trevor-4
+Waiting for FileServer myfiler to be activated on Cluster Trevor-4  ||  Current Ongoing Task = File Server activation suspend schedule : Completed  ||  Percentage Complete = 2
+Waiting for FileServer myfiler to be activated on Cluster Trevor-4  ||  Current Ongoing Task = File Server Activate  ||  Percentage Complete = 100
+FileServer myfiler is activated now on cluster Trevor-4
 
 ```
