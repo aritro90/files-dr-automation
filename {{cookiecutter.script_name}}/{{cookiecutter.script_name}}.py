@@ -20,16 +20,16 @@ fs_state = ""   #Global Variables, no values should be assigned to them by defau
 fs_pdStatus = ""   #Global Variables, no values should be assigned to them by default
 fs_pdstate = ""   #Global Variables, no values should be assigned to them by default
 fs_uuid = "{{cookiecutter.fs_uuid}}"
-fs_dns = "{{cookiecutter.fs_dns}}"
-fs_ntp = "{{cookiecutter.fs_ntp}}"
+fs_dns = {{cookiecutter.fs_dns}}
+fs_ntp = {{cookiecutter.fs_ntp}}
 fs_int_net_uuid = "{{cookiecutter.fs_int_net_uuid}}"
 fs_int_net_mask = "{{cookiecutter.fs_int_net_mask}}"
 fs_int_net_gw = "{{cookiecutter.fs_int_net_gw}}"
-fs_int_net_pool = "{{cookiecutter.fs_int_net_pool}}"   #Do not use this variable in the activate payload if using managed network. Ideal way to define the range is (eg: 3 node fs cluster) fs_int_net_pool = "10.20.10.100 10.20.10.103" 
+fs_int_net_pool = {{cookiecutter.fs_int_net_pool}} 
 fs_ext_net_uuid = "{{cookiecutter.fs_ext_net_uuid}}"
 fs_ext_net_mask = "{{cookiecutter.fs_ext_net_mask}}"
 fs_ext_net_gw = "{{cookiecutter.fs_ext_net_gw}}"
-fs_ext_net_pool = "{{cookiecutter.fs_ext_net_pool}}"   #Do not use this variable in the activate payload if using managed network. Ideal way to define the range is (eg: 3 node fs cluster) fs_ext_net_pool = "10.10.10.10 10.10.10.12" 
+fs_ext_net_pool = {{cookiecutter.fs_ext_net_pool}}
 
 # The below function is used to prompt user to enter username and password. 
 def Prism_auth(Site):
@@ -138,7 +138,7 @@ def post_request_migrate(User_Name,Password):
 
 # Defining Post function for Activation Activity
 def post_request_activate_fs(User_Name, Password):
-    payload = {'name': f'{FS_Name}', 'internalNetwork': {'subnetMask': f'{fs_int_net_mask}', 'defaultGateway': f'{fs_int_net_gw}', 'uuid': f'{fs_int_net_uuid}', 'pool': []}, 'externalNetworks': [{'subnetMask': f'{fs_ext_net_mask}', 'defaultGateway': f'{fs_ext_net_gw}', 'uuid': f'{fs_ext_net_uuid}', 'pool': []}], 'dnsServerIpAddresses': [f'{fs_dns}'], 'ntpServers': [f'{fs_ntp}'], 'uuid': f'{fs_uuid}'}
+    payload = {'name': f'{FS_Name}', 'internalNetwork': {'subnetMask': f'{fs_int_net_mask}', 'defaultGateway': f'{fs_int_net_gw}', 'uuid': f'{fs_int_net_uuid}', 'pool': fs_int_net_pool}, 'externalNetworks': [{'subnetMask': f'{fs_ext_net_mask}', 'defaultGateway': f'{fs_ext_net_gw}', 'uuid': f'{fs_ext_net_uuid}', 'pool': fs_ext_net_pool}], 'dnsServerIpAddresses': fs_dns, 'ntpServers': fs_ntp, 'uuid': f'{fs_uuid}'}
     r = requests.post(f'https://{Target_Cluster_IP}:9440/PrismGateway/services/rest/v1/vfilers/{fs_uuid}/activate', data = json.dumps(payload, indent=4), headers = {'Content-type': 'application/json'}, auth = HTTPBasicAuth (User_Name, Password), verify=False)
     print(f"Activating FileServer {FS_Name} on {Target_Cluster_Name}")
     return r.json()

@@ -3,18 +3,18 @@ default_context:
     script_name: "unplanned-target-trevor-4"
     Source_Cluster_IP: ""
     Target_Cluster_IP: "10.48.70.180"
-    PD_Name: "NTNX-test1"
-    FS_Name: "test1"
+    PD_Name: "NTNX-myfiler"
+    FS_Name: "myfiler"
     Source_Cluster_Name: ""
     Target_Cluster_Name: "Trevor-4"
-    fs_uuid: "990973f8-d12b-409a-9a14-fbbfc4b584e7"
-    fs_dns: "10.136.101.234"
-    fs_ntp: "0.pool.ntp.org"
-    fs_int_net_uuid: "7bf581fa-5fda-4373-971a-77a7c5f2eee3"
-    fs_int_net_mask: ""
-    fs_int_net_gw: ""
-    fs_int_net_pool: ""
-    fs_ext_net_uuid: "7bf581fa-5fda-4373-971a-77a7c5f2eee3"
-    fs_ext_net_mask: ""
-    fs_ext_net_gw: ""
-    fs_ext_net_pool: ""
+    fs_uuid: "86384a32-da87-490a-af68-6b71287edbf9"
+    fs_dns: "["10.136.101.234" , "8.8.8.8"]"   #In case of single DNS server define like "["10.136.101.234"]"
+    fs_ntp: "["0.pool.ntp.org" , "1.pool.ntp.org"]"   #In case of single NTP server define like "["0.pool.ntp.org"]"
+    fs_int_net_uuid: "441cd480-b463-484d-b4dd-6c7cadc64635"
+    fs_int_net_mask: "255.255.254.0"       #Keep empty double quotes "" in case of managed network
+    fs_int_net_gw: "10.48.70.1"            #Keep empty double quotes "" in case of managed network
+    fs_int_net_pool: "["10.48.71.220 10.48.71.223"]"   #Keep empty square bracket "[]"  in case of managed network
+    fs_ext_net_uuid: "441cd480-b463-484d-b4dd-6c7cadc64635"
+    fs_ext_net_mask: "255.255.254.0"       #Keep empty double quotes in case of managed network
+    fs_ext_net_gw: "10.48.70.1"            #Keep empty double quotes in case of managed network
+    fs_ext_net_pool: "["10.48.71.224 10.48.71.226"]"   #Keep empty square bracket "[]" in case of managed network
