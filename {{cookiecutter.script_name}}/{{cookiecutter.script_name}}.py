@@ -232,7 +232,7 @@ if Activity_type == "Planned" :
                 fs_pdStatus = i['pdStatus']
                 fs_state = i['fileServerState']
     print (f"PD {PD_Name} is activated now on cluster {Target_Cluster_Name} ")
-    time.sleep(30)
+    time.sleep(60)
             
 
 # Invoking Filesever Activtaion Activity and Storing the response
