@@ -41,7 +41,7 @@ def main():
         for i in range(length):
             print(str(i+1) + ":",fs_list[i])
         inp = int(input("Enter a Number for fileserver selection :"))
-        if inp in range(1,length):
+        if inp in range(1,length+1):
             fs_name = fs_list[inp-1]
         else:
             sys.exit("Invalid input!")
