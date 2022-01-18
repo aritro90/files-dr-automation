@@ -30,6 +30,16 @@ fs_ext_net_uuid = "{{cookiecutter.fs_ext_net_uuid}}"
 fs_ext_net_mask = "{{cookiecutter.fs_ext_net_mask}}"
 fs_ext_net_gw = "{{cookiecutter.fs_ext_net_gw}}"
 fs_ext_net_pool = {{cookiecutter.fs_ext_net_pool}}
+skip_pd_activate = False
+
+# Logic for interpreting arguments passed during script execution
+if len(sys.argv) == 1:
+    print("Executing the Script without any arguments")
+elif sys.argv[1] == "--retry":
+    Activity_type = "Unplanned"
+else:
+    print("invalid Argument : " + sys.argv[1])
+    sys.exit("Exiting the Script")
 
 # The below function is used to prompt user to enter username and password. 
 def Prism_auth(Site):
@@ -84,6 +94,9 @@ def target_pd_check (User_Name,Password):
             z = 1
             if i['active'] == False :
                 print(f"Target Protection Domain {PD_Name} is in desired state (NOT Active)")
+            elif (i['active'] == True and Activity_type == "Unplanned"):
+                global skip_pd_activate
+                skip_pd_activate = True
             else:
                 sys.exit(f"Target Protection Domain {PD_Name} is in active state seems to be a split brain condition.. Exiting the script")
     if z != 1 :
@@ -198,19 +211,20 @@ if Activity_type == "Planned" :
 # Invoking for Unplanned Failover
 if Activity_type == "Unplanned" :
     cred_target= Target_Site()
-    post_request_activate_pd(*cred_target)
-    
-    # Checking the PD is activated on the remote side 
-    while (fs_state != "FS_PD_ACTIVATED" and fs_pdStatus != "true"):
-        vfiler_reponse = get_request(Target_Cluster_IP,*cred_target)
-        print (f"Waiting for PD {PD_Name} to be activated on cluster {Target_Cluster_Name} ")
-        time.sleep(2)
-        for i in vfiler_reponse[0]['entities']:
-            if i['name'] == FS_Name :
-                fs_pdStatus = i['pdStatus']
-                fs_state = i['fileServerState']
-    print (f"Target PD {PD_Name} is activated now")
-    time.sleep(30)
+    if skip_pd_activate == False:
+        post_request_activate_pd(*cred_target)
+        
+        # Checking the PD is activated on the remote side 
+        while (fs_state != "FS_PD_ACTIVATED" and fs_pdStatus != "true"):
+            vfiler_reponse = get_request(Target_Cluster_IP,*cred_target)
+            print (f"Waiting for PD {PD_Name} to be activated on cluster {Target_Cluster_Name} ")
+            time.sleep(2)
+            for i in vfiler_reponse[0]['entities']:
+                if i['name'] == FS_Name :
+                    fs_pdStatus = i['pdStatus']
+                    fs_state = i['fileServerState']
+        print (f"Target PD {PD_Name} is activated now")
+        time.sleep(30)
 
 if Activity_type == "Deactivate" :
     cred_source= Source_Site()
