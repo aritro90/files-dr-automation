@@ -13,7 +13,7 @@ default_context:
     fs_int_net_uuid: "441cd480-b463-484d-b4dd-6c7cadc64635"
     fs_int_net_mask: "255.255.254.0"       #Keep empty double quotes "" in case of managed network
     fs_int_net_gw: "10.48.70.1"            #Keep empty double quotes "" in case of managed network
-    fs_int_net_pool: "["10.48.71.220 10.48.71.223"]"   #Keep empty square bracket "[]"  in case of managed network
+    fs_int_net_pool: "["10.48.71.220 10.48.71.223"]"   #Keep empty square bracket "[]"  in case of managed network. For non-contiguous IP addresses, you can define like this "["10.48.71.220 10.48.71.221" , "10.48.71.222 10.48.71.222" , "10.48.71.224 10.48.71.224"]"
     fs_ext_net_uuid: "441cd480-b463-484d-b4dd-6c7cadc64635"
     fs_ext_net_mask: "255.255.254.0"       #Keep empty double quotes in case of managed network
     fs_ext_net_gw: "10.48.70.1"            #Keep empty double quotes in case of managed network
